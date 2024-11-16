@@ -1,248 +1,168 @@
-// CategoriesPage.tsx
-import React, { useState } from 'react'
 import {
-  Container,
-  Title,
-  Paper,
-  Group,
-  Button,
+  Card,
   Table,
-  Text,
-  Modal,
-  TextInput,
-  Select,
-  ColorInput,
+  Button,
   ActionIcon,
-  Menu,
-  Stack,
+  Group,
+  Text,
+  ColorSwatch,
+  Box,
+  Modal,
 } from '@mantine/core'
-import { useForm } from '@mantine/form'
 import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconDots,
-  IconWallet,
   IconShoppingCart,
   IconCar,
   IconBriefcase,
+  IconEdit,
+  IconTrash,
 } from '@tabler/icons-react'
+import CategoryForm from './CategoryForm'
+import { useState } from 'react'
 
-// Types
-interface Category {
-  id: string
+export interface Category {
+  icon: React.ReactNode
   name: string
-  type: 'income' | 'expense'
+  type: 'Income' | 'Expense'
   color: string
-  icon: string
 }
 
-// Sample Data
-const sampleCategories: Category[] = [
-  { id: '1', name: 'Salary', type: 'income', color: '#4CAF50', icon: 'wallet' },
+const initialCategories: Category[] = [
   {
-    id: '2',
+    icon: <IconBriefcase size={24} />,
+    name: 'Salary',
+    type: 'Income',
+    color: 'green',
+  },
+  {
+    icon: <IconShoppingCart size={24} />,
     name: 'Food',
-    type: 'expense',
-    color: '#F44336',
-    icon: 'shopping-cart',
+    type: 'Expense',
+    color: 'red',
   },
   {
-    id: '3',
+    icon: <IconCar size={24} />,
     name: 'Transport',
-    type: 'expense',
-    color: '#2196F3',
-    icon: 'car',
-  },
-  {
-    id: '4',
-    name: 'Freelance',
-    type: 'income',
-    color: '#9C27B0',
-    icon: 'briefcase',
+    type: 'Expense',
+    color: 'blue',
   },
 ]
 
-const CategoriesPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>(sampleCategories)
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  )
-  const [isModalOpen, setIsModalOpen] = useState(false)
+export const Categories = () => {
+  const [categories, setCategories] = useState<Category[]>(initialCategories)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
-  const form = useForm({
-    initialValues: {
-      name: '',
-      type: 'expense' as 'income' | 'expense',
-      color: '#1c7ed6',
-      icon: 'wallet',
-    },
-  })
+  const handleAddCategory = () => {
+    setEditingCategory(null)
+    setDialogOpen(true)
+  }
 
-  const handleSubmit = (values: typeof form.values) => {
-    if (selectedCategory) {
-      setCategories(
-        categories.map((cat) =>
-          cat.id === selectedCategory.id ? { ...values, id: cat.id } : cat
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category)
+    setDialogOpen(true)
+  }
+
+  const handleSaveCategory = (category: Partial<Category>) => {
+    if (editingCategory) {
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.name === editingCategory.name ? { ...cat, ...category } : cat
         )
       )
     } else {
-      setCategories([
-        ...categories,
-        { ...values, id: Math.random().toString() },
+      setCategories((prev) => [
+        ...prev,
+        { id: Date.now(), ...category } as Category,
       ])
     }
-    handleCloseModal()
+    setDialogOpen(false)
   }
 
-  const handleOpenModal = (category?: Category) => {
-    if (category) {
-      setSelectedCategory(category)
-      form.setValues(category)
-    } else {
-      setSelectedCategory(null)
-      form.reset()
-    }
-    setIsModalOpen(true)
+  const handleDeleteCategory = (name: string) => {
+    setCategories((prev) => prev.filter((cat) => cat.name !== name))
   }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setSelectedCategory(null)
-    form.reset()
-  }
-
-  const handleDelete = (id: string) => {
-    setCategories(categories.filter((cat) => cat.id !== id))
-  }
-
-  const iconOptions = [
-    { value: 'wallet', label: 'Wallet', icon: IconWallet },
-    { value: 'shopping-cart', label: 'Shopping Cart', icon: IconShoppingCart },
-    { value: 'car', label: 'Car', icon: IconCar },
-    { value: 'briefcase', label: 'Briefcase', icon: IconBriefcase },
-  ]
 
   return (
-    <Container size="lg" py="xl">
-      <Paper shadow="xs" p="md" withBorder>
-        <Group justify="space-between" mb="md">
-          <Title order={2}>Categories</Title>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => handleOpenModal()}
-          >
-            Add Category
+    <>
+      <Box p="md">
+        <Group justify="space-between">
+          <Text fw={600} size="lg">
+            Categories
+          </Text>
+          <Button size="xs" variant="light" onClick={() => handleAddCategory()}>
+            + Add Category
           </Button>
         </Group>
-
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Icon</Table.Th>
-              <Table.Th>Name</Table.Th>
-              <Table.Th>Type</Table.Th>
-              <Table.Th>Color</Table.Th>
-              <Table.Th>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {categories.map((category) => (
-              <Table.Tr key={category.id}>
-                <Table.Td>
-                  {iconOptions.find((i) => i.value === category.icon)?.icon &&
-                    React.createElement(
-                      iconOptions.find((i) => i.value === category.icon)!.icon,
-                      { size: 20, style: { color: category.color } }
-                    )}
-                </Table.Td>
-                <Table.Td>{category.name}</Table.Td>
-                <Table.Td>
-                  <Text c={category.type === 'income' ? 'teal' : 'red'}>
-                    {category.type.charAt(0).toUpperCase() +
-                      category.type.slice(1)}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <div
+        <Card shadow="sm" mt="md" padding="lg" radius="md" withBorder>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Icon</Table.Th>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Type</Table.Th>
+                <Table.Th>Color</Table.Th>
+                <Table.Th>Actions</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <tbody>
+              {categories.map((category, index) => (
+                <Table.Tr key={index}>
+                  <Table.Td>
+                    <ActionIcon
+                      size="lg"
+                      variant="light"
+                      color={category.color}
+                    >
+                      {category.icon}
+                    </ActionIcon>
+                  </Table.Td>
+                  <Table.Td>{category.name}</Table.Td>
+                  <Table.Td
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
-                      backgroundColor: category.color,
+                      color: category.type === 'Income' ? 'green' : 'red',
                     }}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="sm" justify="left">
-                    <ActionIcon onClick={() => handleOpenModal(category)}>
+                  >
+                    {category.type}
+                  </Table.Td>
+                  <Table.Td>
+                    <ColorSwatch size={16} color={category.color} />
+                  </Table.Td>
+                  <Table.Td>
+                    <ActionIcon
+                      onClick={() => handleEditCategory(category)}
+                      variant="transparent"
+                    >
                       <IconEdit size={16} />
                     </ActionIcon>
-                    <Menu position="bottom-end" shadow="md">
-                      <Menu.Target>
-                        <ActionIcon>
-                          <IconDots size={16} />
-                        </ActionIcon>
-                      </Menu.Target>
-                      <Menu.Dropdown>
-                        <Menu.Item
-                          color="red"
-                          leftSection={<IconTrash size={16} />}
-                          onClick={() => handleDelete(category.id)}
-                        >
-                          Delete
-                        </Menu.Item>
-                      </Menu.Dropdown>
-                    </Menu>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-
-        <Modal
-          opened={isModalOpen}
-          onClose={handleCloseModal}
-          title={selectedCategory ? 'Edit Category' : 'New Category'}
-        >
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <Stack gap="md">
-              <TextInput
-                required
-                label="Name"
-                placeholder="Enter category name"
-                {...form.getInputProps('name')}
-              />
-              <Select
-                required
-                label="Type"
-                data={[
-                  { value: 'income', label: 'Income' },
-                  { value: 'expense', label: 'Expense' },
-                ]}
-                {...form.getInputProps('type')}
-              />
-              <Select
-                required
-                label="Icon"
-                data={iconOptions}
-                {...form.getInputProps('icon')}
-              />
-              <ColorInput
-                required
-                label="Color"
-                {...form.getInputProps('color')}
-              />
-              <Button type="submit">
-                {selectedCategory ? 'Update' : 'Create'} Category
-              </Button>
-            </Stack>
-          </form>
-        </Modal>
-      </Paper>
-    </Container>
+                    <ActionIcon
+                      onClick={() => handleDeleteCategory(category.name)}
+                      variant="transparent"
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card>
+      </Box>
+      {/* Dialog for Adding/Editing Categories */}
+      <Modal
+        opened={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editingCategory ? 'Edit Category' : 'Add Category'}
+        centered
+      >
+        <CategoryForm
+          initialValues={
+            editingCategory || { name: '', type: 'Income', color: '', icon: '' }
+          }
+          onSubmit={handleSaveCategory}
+        />
+      </Modal>
+    </>
   )
 }
 
-export default CategoriesPage
+export default Categories

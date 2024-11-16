@@ -15,9 +15,7 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import {
   IconWallet,
-  // IconChartBar,
   IconReportMoney,
-  IconSettings,
   IconPigMoney,
   IconCategory,
   IconUserCircle,
@@ -83,12 +81,6 @@ const App = () => {
       description: 'Set and track your budgets',
       color: 'indigo',
     },
-    {
-      leftSection: IconSettings,
-      label: 'Settings',
-      description: 'Customize your preferences',
-      color: 'yellow',
-    },
   ]
 
   const NavbarContent = () => (
@@ -114,6 +106,7 @@ const App = () => {
           description={'navneetlalg@gmail.com'}
           leftSection={<IconUserCircle size="2rem" stroke={1.5} />}
           rightSection={<IconChevronRight size="1rem" stroke={1.5} />}
+          onClick={() => setActiveNav('Settings')}
         />
       </Stack>
     </Stack>

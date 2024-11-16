@@ -1,304 +1,255 @@
-// Types
-interface Transaction {
-  id: string
-  date: Date
-  type: 'income' | 'expense' | 'transfer'
-  amount: number
-  category: string
-  description: string
-  fromAccount?: string
-  toAccount?: string
-}
-
-// TransactionsPage.tsx
-import { useState } from 'react'
+import React, { useId, useState } from 'react'
 import {
   Box,
+  Group,
+  Select,
+  ActionIcon,
+  Text,
+  Stack,
   Button,
   Card,
-  Group,
   Modal,
-  Select,
-  TextInput,
-  NumberInput,
-  Text,
-  ActionIcon,
   Menu,
-  Container,
-  Grid,
-  Stack,
-  useMantineTheme,
-  rgba,
 } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import { DatePickerInput } from '@mantine/dates'
 import {
-  IconPlus,
+  IconFilter,
+  IconArrowUpRight,
+  IconArrowDownRight,
   IconDotsVertical,
-  IconPencil,
+  IconEdit,
   IconTrash,
-  IconArrowUp,
-  IconArrowDown,
-  IconArrowsLeftRight,
 } from '@tabler/icons-react'
-import { DateInput } from '@mantine/dates'
+import dayjs from 'dayjs'
+import TransactionForm from './TransactionForm'
 
-const sampleTransactions: Transaction[] = [
+export interface Transaction {
+  id: string
+  title: string
+  category: string
+  date: string
+  amount: number
+  type: 'income' | 'expense' | 'transfer'
+}
+
+const initialTransactions: Transaction[] = [
   {
     id: '1',
-    date: new Date(),
-    type: 'income',
-    amount: 5000,
+    title: 'Monthly salary',
     category: 'Salary',
-    description: 'Monthly salary',
+    date: '11/16/2024',
+    amount: 5000,
+    type: 'income',
   },
   {
     id: '2',
-    date: new Date(),
-    type: 'expense',
-    amount: 50,
+    title: 'Groceries',
     category: 'Food',
-    description: 'Groceries',
+    date: '11/16/2024',
+    amount: -50,
+    type: 'expense',
   },
-  // Add more sample transactions
 ]
 
-const Transactions = () => {
-  const theme = useMantineTheme()
-  const [transactions, setTransactions] = useState(sampleTransactions)
-  const [modalOpen, setModalOpen] = useState(false)
+const categories = [
+  'All Categories',
+  'Salary',
+  'Food',
+  'Transportation',
+  'Entertainment',
+  'Bills',
+  'Shopping',
+]
+
+export const TransactionList = () => {
+  const startOfMonth = dayjs().startOf('month').toDate()
+  const endOfMonth = dayjs().endOf('month').toDate()
+
+  const [dateRange, setDateRange] = React.useState<[Date | null, Date | null]>([
+    startOfMonth,
+    endOfMonth,
+  ])
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
+    'All Categories'
+  )
+
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(initialTransactions)
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null)
 
-  const form = useForm({
-    initialValues: {
-      date: new Date(),
-      type: 'expense' as 'expense' | 'income' | 'transfer',
-      amount: 0,
-      category: '',
-      description: '',
-      fromAccount: '',
-      toAccount: '',
-    },
-  })
+  const handleAddTransaction = () => {
+    setEditingTransaction(null)
+    setDialogOpen(true)
+  }
 
-  const handleSubmit = (values: typeof form.values) => {
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction)
+    setDialogOpen(true)
+  }
+
+  const handleSaveTransaction = (transaction: Partial<Transaction>) => {
     if (editingTransaction) {
       setTransactions((prev) =>
-        prev.map((t) =>
-          t.id === editingTransaction.id ? { ...values, id: t.id } : t
+        prev.map((tran) =>
+          tran.id === editingTransaction.id ? { ...tran, ...transaction } : tran
         )
       )
     } else {
       setTransactions((prev) => [
         ...prev,
-        { ...values, id: Math.random().toString() },
+        { id: Date.now(), ...transaction } as Transaction,
       ])
     }
-    setModalOpen(false)
-    form.reset()
-    setEditingTransaction(null)
+    setDialogOpen(false)
   }
 
-  const handleDelete = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id))
-  }
-
-  const handleEdit = (transaction: Transaction) => {
-    setEditingTransaction(transaction)
-    form.setValues(transaction)
-    setModalOpen(true)
-  }
-
-  const getTransactionColor = (type: Transaction['type']) => {
-    switch (type) {
-      case 'income':
-        return theme.colors.green[6]
-      case 'expense':
-        return theme.colors.red[6]
-      case 'transfer':
-        return theme.colors.blue[6]
-    }
-  }
-
-  const getTransactionIcon = (type: Transaction['type']) => {
-    switch (type) {
-      case 'income':
-        return <IconArrowUp size={16} />
-      case 'expense':
-        return <IconArrowDown size={16} />
-      case 'transfer':
-        return <IconArrowsLeftRight size={16} />
-    }
+  const handleDeleteTransaction = (id: string) => {
+    setTransactions((prev) => prev.filter((cat) => cat.id !== id))
   }
 
   return (
-    <Container size="xl" p="md">
-      <Group justify="space-between" mb="xl">
-        <Text size="xl" w={700}>
-          Transactions
-        </Text>
-        <Button
-          leftSection={<IconPlus size={16} />}
-          onClick={() => setModalOpen(true)}
-        >
-          Add Transaction
-        </Button>
-      </Group>
-
+    <>
       <Stack gap="md">
-        {transactions.map((transaction) => (
-          <Card key={transaction.id} shadow="sm" p="md" radius="md" withBorder>
-            <Grid align="center">
-              <Grid.Col span={{ base: 12, sm: 3 }}>
+        <Group justify="space-between">
+          <Text fw={600} size="lg">
+            Transactions
+          </Text>
+          <Button
+            size="xs"
+            variant="light"
+            onClick={() => handleAddTransaction()}
+          >
+            + Add Transaction
+          </Button>
+        </Group>
+
+        <Group gap="md">
+          <DatePickerInput
+            type="range"
+            allowSingleDateInRange
+            label="Filter by date"
+            placeholder="Select date range"
+            value={dateRange}
+            onChange={setDateRange}
+            clearable
+            style={(theme) => ({
+              root: {
+                flex: 1,
+              },
+              input: {
+                backgroundColor: theme.colors.dark[6],
+                border: `1px solid ${theme.colors.dark[4]}`,
+                '&:focus': {
+                  borderColor: theme.colors.blue[5],
+                },
+              },
+            })}
+          />
+
+          <Select
+            label="Filter by category"
+            placeholder="Select category"
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            data={categories}
+            leftSection={<IconFilter size={16} />}
+            styles={() => ({
+              root: {
+                flex: 1,
+              },
+            })}
+          />
+        </Group>
+
+        <Stack gap="sm">
+          {transactions.map((transaction, index) => (
+            <Card key={index} padding="md" radius="md" withBorder>
+              <Group justify="space-between">
                 <Group>
-                  <Box
-                    style={{
-                      color: getTransactionColor(transaction.type),
-                      backgroundColor: rgba(
-                        getTransactionColor(transaction.type),
-                        0.1
-                      ),
-                      width: 32,
-                      height: 32,
-                      borderRadius: theme.radius.sm,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                  <ActionIcon
+                    size="lg"
+                    variant="light"
+                    color={transaction.type === 'income' ? 'green' : 'red'}
                   >
-                    {getTransactionIcon(transaction.type)}
-                  </Box>
+                    {transaction.type === 'income' ? (
+                      <IconArrowUpRight size={24} color="green" />
+                    ) : (
+                      <IconArrowDownRight size={24} color="red" />
+                    )}
+                  </ActionIcon>
                   <div>
-                    <Text size="sm" w={500}>
-                      {transaction.category}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {new Date(transaction.date).toLocaleDateString()}
+                    <Text fw={500}>{transaction.title}</Text>
+                    <Text size="sm" c="dimmed">
+                      {transaction.category} · {transaction.date}
                     </Text>
                   </div>
                 </Group>
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text size="sm">{transaction.description}</Text>
-              </Grid.Col>
-              <Grid.Col span={{ base: 10, sm: 2 }}>
-                <Text
-                  w={500}
-                  style={{ color: getTransactionColor(transaction.type) }}
-                >
-                  {transaction.type === 'expense' ? '-' : '+'}$
-                  {transaction.amount.toLocaleString()}
-                </Text>
-              </Grid.Col>
-              <Grid.Col span={{ base: 2, sm: 1 }}>
-                <Menu position="bottom-end">
-                  <Menu.Target>
-                    <ActionIcon>
-                      <IconDotsVertical size={16} />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Item
-                      leftSection={<IconPencil size={16} />}
-                      onClick={() => handleEdit(transaction)}
-                    >
-                      Edit
-                    </Menu.Item>
-                    <Menu.Item
-                      leftSection={<IconTrash size={16} />}
-                      color="red"
-                      onClick={() => handleDelete(transaction.id)}
-                    >
-                      Delete
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Grid.Col>
-            </Grid>
-          </Card>
-        ))}
+                <Group>
+                  <Text
+                    fw={600}
+                    c={transaction.type === 'income' ? 'green' : 'red'}
+                  >
+                    {transaction.type === 'income' ? '+' : '-'}$
+                    {Math.abs(transaction.amount).toFixed(2)}
+                  </Text>
+                  <Menu trigger="hover" openDelay={100} closeDelay={400}>
+                    <Menu.Target>
+                      <ActionIcon variant="transparent">
+                        <IconDotsVertical size={20} />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Item
+                        leftSection={<IconEdit />}
+                        onClick={() => handleEditTransaction(transaction)}
+                      >
+                        Edit
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={<IconTrash />}
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                      >
+                        Delete
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Group>
+              </Group>
+            </Card>
+          ))}
+        </Stack>
       </Stack>
-
+      {/* Dialog for Adding/Editing Transaction */}
       <Modal
-        opened={modalOpen}
-        onClose={() => {
-          setModalOpen(false)
-          setEditingTransaction(null)
-          form.reset()
-        }}
-        title={editingTransaction ? 'Edit Transaction' : 'New Transaction'}
+        opened={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editingTransaction ? 'Edit Category' : 'Add Category'}
+        centered
       >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md">
-            <DateInput
-              label="Date"
-              placeholder="Select date"
-              required
-              {...form.getInputProps('date')}
-            />
-            <Select
-              label="Type"
-              required
-              data={[
-                { value: 'income', label: 'Income' },
-                { value: 'expense', label: 'Expense' },
-                { value: 'transfer', label: 'Transfer' },
-              ]}
-              {...form.getInputProps('type')}
-            />
-            <NumberInput
-              label="Amount"
-              required
-              min={0}
-              decimalScale={2}
-              {...form.getInputProps('amount')}
-            />
-            <Select
-              label="Category"
-              required
-              data={['Salary', 'Food', 'Transport', 'Entertainment'].map(
-                (c) => ({
-                  value: c,
-                  label: c,
-                })
-              )}
-              {...form.getInputProps('category')}
-            />
-            <TextInput
-              label="Description"
-              required
-              {...form.getInputProps('description')}
-            />
-            {form.values.type === 'transfer' && (
-              <>
-                <Select
-                  label="From Account"
-                  required
-                  data={['Cash', 'Bank', 'Credit Card'].map((a) => ({
-                    value: a,
-                    label: a,
-                  }))}
-                  {...form.getInputProps('fromAccount')}
-                />
-                <Select
-                  label="To Account"
-                  required
-                  data={['Cash', 'Bank', 'Credit Card'].map((a) => ({
-                    value: a,
-                    label: a,
-                  }))}
-                  {...form.getInputProps('toAccount')}
-                />
-              </>
-            )}
-            <Button type="submit">
-              {editingTransaction ? 'Update' : 'Add'} Transaction
-            </Button>
-          </Stack>
-        </form>
+        <TransactionForm
+          initialValues={
+            editingTransaction || {
+              id: useId(),
+              title: '',
+              type: 'expense',
+              category: '',
+              amount: 0,
+              date: '',
+            }
+          }
+          onSubmit={handleSaveTransaction}
+        />
       </Modal>
-    </Container>
+    </>
   )
 }
 
-export default Transactions
+export default function TransactionsPage() {
+  return (
+    <Box p="md">
+      <TransactionList />
+    </Box>
+  )
+}
