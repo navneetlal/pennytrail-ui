@@ -1,0 +1,93 @@
+import React from 'react';
+import { SimpleGrid, Card, Text, Center } from '@mantine/core';
+import {
+  IconCash,
+  IconCoin,
+  IconBriefcase,
+  IconGift,
+  IconBuildingBank,
+  IconChartLineUp,
+  IconPigMoney,
+  IconCheck,
+  IconShoppingBag,
+  IconStar,
+  IconShoppingCart,
+  IconUtensils,
+  IconCar,
+  IconHome,
+  IconHeart,
+  IconPlane,
+  IconCreditCard,
+  IconMusic,
+  IconSchool,
+  IconTools,
+  IconGasStation,
+  IconArrowsLeftRight,
+  IconArrowUpCircle,
+  IconArrowDownCircle,
+  IconRepeat,
+  IconSync,
+} from '@tabler/icons-react';
+
+// Define category types
+type CategoryType = 'Income' | 'Expense' | 'Transfer';
+
+// Define the structure of a category
+type Category = {
+  name: string;
+  icon: React.ReactNode;
+  type: CategoryType;
+};
+
+// Create an array of categories
+const categories: Category[] = [
+  // Income categories
+  { name: 'Salary', icon: <IconCash size={32} />, type: 'Income' },
+  { name: 'Coins', icon: <IconCoin size={32} />, type: 'Income' },
+  { name: 'Business', icon: <IconBriefcase size={32} />, type: 'Income' },
+  { name: 'Gifts', icon: <IconGift size={32} />, type: 'Income' },
+  { name: 'Bank Income', icon: <IconBuildingBank size={32} />, type: 'Income' },
+  { name: 'Investments', icon: <IconChartLineUp size={32} />, type: 'Income' },
+  { name: 'Savings Growth', icon: <IconPigMoney size={32} />, type: 'Income' },
+  { name: 'Settlements', icon: <IconCheck size={32} />, type: 'Income' },
+  { name: 'Selling Goods', icon: <IconShoppingBag size={32} />, type: 'Income' },
+  { name: 'Royalties', icon: <IconStar size={32} />, type: 'Income' },
+
+  // Expense categories
+  { name: 'Shopping', icon: <IconShoppingCart size={32} />, type: 'Expense' },
+  { name: 'Dining', icon: <IconUtensils size={32} />, type: 'Expense' },
+  { name: 'Transportation', icon: <IconCar size={32} />, type: 'Expense' },
+  { name: 'Housing', icon: <IconHome size={32} />, type: 'Expense' },
+  { name: 'Healthcare', icon: <IconHeart size={32} />, type: 'Expense' },
+  { name: 'Travel', icon: <IconPlane size={32} />, type: 'Expense' },
+  { name: 'Debt Payments', icon: <IconCreditCard size={32} />, type: 'Expense' },
+  { name: 'Entertainment', icon: <IconMusic size={32} />, type: 'Expense' },
+  { name: 'Education', icon: <IconSchool size={32} />, type: 'Expense' },
+  { name: 'Utilities', icon: <IconTools size={32} />, type: 'Expense' },
+  { name: 'Fuel', icon: <IconGasStation size={32} />, type: 'Expense' },
+
+  // Transfer categories
+  { name: 'Transfers', icon: <IconArrowsLeftRight size={32} />, type: 'Transfer' },
+  { name: 'Outgoing', icon: <IconArrowUpCircle size={32} />, type: 'Transfer' },
+  { name: 'Incoming', icon: <IconArrowDownCircle size={32} />, type: 'Transfer' },
+  { name: 'Recurring', icon: <IconRepeat size={32} />, type: 'Transfer' },
+  { name: 'Synced Accounts', icon: <IconSync size={32} />, type: 'Transfer' },
+  { name: 'Bank Transfers', icon: <IconBuildingBank size={32} />, type: 'Transfer' },
+];
+
+const CategorySelection: React.FC = () => {
+  return (
+    <SimpleGrid cols={4} spacing="lg">
+      {categories.map((category) => (
+        <Card key={category.name} shadow="sm" padding="lg" withBorder>
+          <Center>{category.icon}</Center>
+          <Text align="center" mt="sm">
+            {category.name}
+          </Text>
+        </Card>
+      ))}
+    </SimpleGrid>
+  );
+};
+
+export default CategorySelection;

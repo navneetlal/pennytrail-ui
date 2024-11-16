@@ -225,7 +225,7 @@ export const TransactionList = () => {
       <Modal
         opened={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        title={editingTransaction ? 'Edit Category' : 'Add Category'}
+        title={editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
         centered
       >
         <TransactionForm

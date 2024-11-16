@@ -1,0 +1,36 @@
+.root {
+  background-color: light-dark(
+    var(--mantine-color-white),
+    var(--mantine-color-dark-7)
+  );
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
+}
+
+.card {
+  background-color: light-dark(
+    var(--mantine-color-white),
+    var(--mantine-color-dark-8)
+  );
+  border: 1px solid
+    light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+}
+
+.statCard {
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-7)
+  );
+}
+
+.title {
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+  font-size: 32px;
+}
+
+.subtitle {
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+}

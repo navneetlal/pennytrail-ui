@@ -22,12 +22,14 @@ import {
   IconChevronRight,
   IconSun,
   IconMoonStars,
+  IconTarget,
 } from '@tabler/icons-react'
 import Dashboard from './components/Dashboard'
 import Transactions from './components/Transactions'
 import CategoriesPage from './components/Categories'
 import BudgetsPage from './components/Budget'
 import SettingsPage from './components/Settings'
+import SavingsPage from './components/GoalTracker'
 
 const MainPage = ({ label }: { label: string }) => {
   switch (label) {
@@ -43,6 +45,8 @@ const MainPage = ({ label }: { label: string }) => {
       return <BudgetsPage />
     case 'Settings':
       return <SettingsPage />
+    case 'Goal Tracker':
+      return <SavingsPage />
     default:
       break
   }
@@ -79,6 +83,12 @@ const App = () => {
       leftSection: IconPigMoney,
       label: 'Budgets',
       description: 'Set and track your budgets',
+      color: 'indigo',
+    },
+    {
+      leftSection: IconTarget,
+      label: 'Goal Tracker',
+      description: 'Track and manage your savings goals',
       color: 'indigo',
     },
   ]

@@ -1,0 +1,6 @@
+body {
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  line-height: var(--mantine-line-height);
+  font-family: var(--mantine-font-family);
+}
