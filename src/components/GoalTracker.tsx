@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   Container,
   Title,
@@ -55,17 +55,17 @@ export function SavingsPage() {
         {/* Header Section */}
         <Group justify="space-between" className={classes.header}>
           <div>
-            <Title order={1} className={classes.title}>
-              Savings Targets
+            <Title order={1} fw={600} size="lg">
+              Goal Tracker
             </Title>
-            <Text className={classes.subtitle} mt="xs">
+            <Text size="sm" c="dimmed" mt="xs">
               Track and manage your savings goals
             </Text>
           </div>
           <Button
             leftSection={<IconPlus size={16} />}
-            variant="filled"
-            size="md"
+            variant="light"
+            size="xs"
           >
             Add Target
           </Button>

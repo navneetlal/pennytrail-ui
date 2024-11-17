@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import {
   AppShell,
   Burger,
@@ -11,6 +11,7 @@ import {
   Divider,
   rem,
   useMantineColorScheme,
+  Center,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import {
@@ -24,12 +25,20 @@ import {
   IconMoonStars,
   IconTarget,
 } from '@tabler/icons-react'
-import Dashboard from './components/Dashboard'
-import Transactions from './components/Transactions'
-import CategoriesPage from './components/Categories'
-import BudgetsPage from './components/Budget'
-import SettingsPage from './components/Settings'
-import SavingsPage from './components/GoalTracker'
+
+// import Dashboard from './components/Dashboard'
+// import Transactions from './components/Transactions'
+// import CategoriesPage from './components/Categories'
+// import BudgetsPage from './components/Budget'
+// import SettingsPage from './components/Settings'
+// import SavingsPage from './components/GoalTracker'
+
+const Dashboard = lazy(() => import('./components/Dashboard'))
+const Transactions = lazy(() => import('./components/Transactions'))
+const CategoriesPage = lazy(() => import('./components/Categories'))
+const BudgetsPage = lazy(() => import('./components/Budget'))
+const SettingsPage = lazy(() => import('./components/Settings'))
+const SavingsPage = lazy(() => import('./components/GoalTracker'))
 
 const MainPage = ({ label }: { label: string }) => {
   switch (label) {
@@ -180,7 +189,15 @@ const App = () => {
         </Group>
       </AppShell.Header>
       <AppShell.Main>
-        <MainPage label={activeNav} />
+        <Suspense
+          fallback={
+            <Center style={{ height: '100%' }}>
+              {/* <Loader type="dots" /> */}
+            </Center>
+          }
+        >
+          <MainPage label={activeNav} />
+        </Suspense>
       </AppShell.Main>
     </AppShell>
   )

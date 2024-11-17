@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Group,
@@ -22,6 +22,7 @@ import {
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import TransactionForm from './TransactionForm'
+import { nanoid } from 'nanoid'
 
 export interface Transaction {
   id: string
@@ -34,7 +35,7 @@ export interface Transaction {
 
 const initialTransactions: Transaction[] = [
   {
-    id: '1',
+    id: nanoid(),
     title: 'Monthly salary',
     category: 'Salary',
     date: '11/16/2024',
@@ -42,7 +43,7 @@ const initialTransactions: Transaction[] = [
     type: 'income',
   },
   {
-    id: '2',
+    id: nanoid(),
     title: 'Groceries',
     category: 'Food',
     date: '11/16/2024',
@@ -85,6 +86,7 @@ export const TransactionList = () => {
   }
 
   const handleEditTransaction = (transaction: Transaction) => {
+    console.log('edit', transaction)
     setEditingTransaction(transaction)
     setDialogOpen(true)
   }
@@ -99,14 +101,14 @@ export const TransactionList = () => {
     } else {
       setTransactions((prev) => [
         ...prev,
-        { id: Date.now(), ...transaction } as Transaction,
+        { id: nanoid(), ...transaction } as Transaction,
       ])
     }
     setDialogOpen(false)
   }
 
   const handleDeleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((cat) => cat.id !== id))
+    setTransactions((prev) => prev.filter((tran) => tran.id !== id))
   }
 
   return (
@@ -231,7 +233,7 @@ export const TransactionList = () => {
         <TransactionForm
           initialValues={
             editingTransaction || {
-              id: useId(),
+              id: nanoid(),
               title: '',
               type: 'expense',
               category: '',

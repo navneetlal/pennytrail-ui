@@ -26,11 +26,6 @@
   );
 }
 
-.title {
-  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
-  font-size: 32px;
-}
-
 .subtitle {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
 }

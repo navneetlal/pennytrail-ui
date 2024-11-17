@@ -14,21 +14,14 @@ import {
   Box,
   Drawer,
   RingProgress,
-  List,
+  Menu,
+  Progress,
+  Center,
+  rem,
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts'
+import { ResponsiveContainer } from 'recharts'
+import { DonutChart, LineChart } from '@mantine/charts'
 import {
   IconWallet,
   IconReportMoney,
@@ -37,7 +30,15 @@ import {
   IconArrowDown,
   IconPigMoney,
   IconReceipt,
+  IconArrowDownRight,
+  IconArrowUpRight,
+  IconDotsVertical,
+  IconEdit,
+  IconTrash,
+  IconCheck,
 } from '@tabler/icons-react'
+import { Transaction } from './Transactions'
+import { nanoid } from 'nanoid'
 
 // Dummy data for charts and stats
 const monthlyData = [
@@ -55,6 +56,25 @@ const categoryData = [
   { name: 'Shopping', value: 600, color: '#FF6B6B' },
   { name: 'Bills', value: 1500, color: '#845EF7' },
   { name: 'Entertainment', value: 400, color: '#FAB005' },
+]
+
+const transactions: Transaction[] = [
+  {
+    id: nanoid(),
+    title: 'Monthly salary',
+    category: 'Salary',
+    date: '11/16/2024',
+    amount: 5000,
+    type: 'income',
+  },
+  {
+    id: nanoid(),
+    title: 'Groceries',
+    category: 'Food',
+    date: '11/16/2024',
+    amount: -50,
+    type: 'expense',
+  },
 ]
 
 interface StatCardProps {
@@ -75,14 +95,14 @@ const StatCard = ({
   <Card>
     <Group justify="space-between" align="flex-start">
       <div>
-        <Text size="sm" color="dimmed">
+        <Text size="sm" c="dimmed">
           {title}
         </Text>
         <Title order={3} mt="xs">
           {value}
         </Title>
         {trend && (
-          <Text size="sm" color={trend > 0 ? 'teal' : 'red'} mt={4}>
+          <Text size="sm" c={trend > 0 ? 'teal' : 'red'} mt={4}>
             {trend > 0 ? (
               <IconArrowUp size={14} />
             ) : (
@@ -154,30 +174,16 @@ const Dashboard = () => {
               </Title>
               <Box h={300}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="income"
-                      stroke="#2ecc71"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="expenses"
-                      stroke="#e74c3c"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="savings"
-                      stroke="#3498db"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
+                  <LineChart
+                    data={monthlyData}
+                    withLegend
+                    dataKey="month"
+                    series={[
+                      { name: 'income', color: 'green' },
+                      { name: 'expenses', color: 'red' },
+                      { name: 'savings', color: 'blue' },
+                    ]}
+                  />
                 </ResponsiveContainer>
               </Box>
             </Card>
@@ -189,20 +195,15 @@ const Dashboard = () => {
               </Title>
               <Box h={300}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={60}
-                      outerRadius={80}
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
+                  <DonutChart
+                    data={categoryData}
+                    withLabels
+                    pieProps={{
+                      dataKey: 'value',
+                      nameKey: 'name',
+                      label: ({ value }) => `$${value}`,
+                    }}
+                  />
                 </ResponsiveContainer>
               </Box>
             </Card>
@@ -214,62 +215,74 @@ const Dashboard = () => {
           <Group justify="space-between" mb="md">
             <Title order={4}>Recent Transactions</Title>
             <Button
+              size="xs"
+              variant="light"
               leftSection={<IconPlus size={16} />}
               onClick={() => setAddTransactionOpened(true)}
             >
               Add Transaction
             </Button>
           </Group>
-          <List spacing="xs">
-            {[
-              {
-                id: 1,
-                desc: 'Grocery Shopping',
-                amount: -120,
-                category: 'Food',
-                date: '2024-03-10',
-              },
-              {
-                id: 2,
-                desc: 'Salary Deposit',
-                amount: 5500,
-                category: 'Income',
-                date: '2024-03-01',
-              },
-              {
-                id: 3,
-                desc: 'Electric Bill',
-                amount: -85,
-                category: 'Utilities',
-                date: '2024-03-05',
-              },
-            ].map((tx) => (
-              <List.Item key={tx.id}>
-                <Card>
-                  <Group justify="space-between">
-                    <div>
-                      <Text w={500}>{tx.desc}</Text>
-                      <Text size="sm" c="dimmed">
-                        {tx.category} • {tx.date}
-                      </Text>
-                    </div>
-                    <Text w={500} c={tx.amount > 0 ? 'green' : 'red'}>
-                      {tx.amount > 0 ? '+' : ''}
-                      {tx.amount.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                      })}
-                    </Text>
-                  </Group>
-                </Card>
-              </List.Item>
-            ))}
-          </List>
+          {transactions.map((transaction, _index) => (
+            // <Card key={index} padding="md" radius="md">
+            <Group key={transaction.id} justify="space-between" my="sm">
+              <Group>
+                <ActionIcon
+                  size="lg"
+                  variant="light"
+                  color={transaction.type === 'income' ? 'green' : 'red'}
+                >
+                  {transaction.type === 'income' ? (
+                    <IconArrowUpRight size={24} color="green" />
+                  ) : (
+                    <IconArrowDownRight size={24} color="red" />
+                  )}
+                </ActionIcon>
+                <div>
+                  <Text fw={500}>{transaction.title}</Text>
+                  <Text size="sm" c="dimmed">
+                    {transaction.category} · {transaction.date}
+                  </Text>
+                </div>
+              </Group>
+              <Group>
+                <Text
+                  fw={600}
+                  c={transaction.type === 'income' ? 'green' : 'red'}
+                >
+                  {transaction.type === 'income' ? '+' : '-'}$
+                  {Math.abs(transaction.amount).toFixed(2)}
+                </Text>
+                <Menu trigger="hover" openDelay={100} closeDelay={400}>
+                  <Menu.Target>
+                    <ActionIcon variant="transparent">
+                      <IconDotsVertical size={20} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      leftSection={<IconEdit />}
+                      // onClick={() => handleEditTransaction(transaction)}
+                    >
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={<IconTrash />}
+                      // onClick={() => handleDeleteTransaction(transaction.id)}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </Group>
+            </Group>
+            // </Card>
+          ))}
         </Card>
 
         {/* Desktop-only Analytics */}
         <Grid>
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <Card>
               <Title order={4} mb="md">
                 Budget Status
@@ -278,30 +291,32 @@ const Dashboard = () => {
                 <Box key={index} mb="sm">
                   <Group justify="space-between" mb={5}>
                     <Text size="sm">{category.name}</Text>
-                    <Text size="sm" w={500}>
+                    <Text size="sm" fw={500}>
                       ${category.value} / ${category.value * 1.5}
                     </Text>
                   </Group>
-                  <RingProgress
-                    size={60}
-                    thickness={8}
-                    sections={[
-                      {
-                        value: (category.value / (category.value * 1.5)) * 100,
-                        color: category.color,
-                      },
-                    ]}
+                  <Progress
+                    value={(category.value / (category.value * 1.5)) * 100}
+                    color={category.color}
+                    // size={60}
+                    // thickness={8}
+                    // sections={[
+                    //   {
+                    //     value: (category.value / (category.value * 1.5)) * 100,
+                    //     color: category.color,
+                    //   },
+                    // ]}
                   />
                 </Box>
               ))}
             </Card>
           </Grid.Col>
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <Card>
               <Title order={4} mb="md">
                 Savings Goals
               </Title>
-              <Stack gap="md">
+              <Grid>
                 {[
                   {
                     name: 'Emergency Fund',
@@ -311,7 +326,7 @@ const Dashboard = () => {
                   },
                   {
                     name: 'Vacation',
-                    current: 2000,
+                    current: 3000,
                     target: 3000,
                     color: 'grape',
                   },
@@ -322,26 +337,49 @@ const Dashboard = () => {
                     color: 'orange',
                   },
                 ].map((goal, index) => (
-                  <Box key={index}>
+                  <Grid.Col span={{ base: 12, md: 4 }} key={index}>
                     <Group justify="space-between" mb={5}>
                       <Text size="sm">{goal.name}</Text>
-                      <Text size="sm" w={500}>
+                      <Text size="sm" fw={500}>
                         ${goal.current} / ${goal.target}
                       </Text>
                     </Group>
                     <RingProgress
-                      size={60}
-                      thickness={8}
+                      size={100}
+                      thickness={10}
                       sections={[
                         {
                           value: (goal.current / goal.target) * 100,
-                          color: goal.color,
+                          color:
+                            (goal.current / goal.target) * 100 === 100
+                              ? 'green'
+                              : goal.color,
                         },
                       ]}
+                      label={
+                        <Text c="blue" fw={400} ta="center" size="md">
+                          {(goal.current / goal.target) * 100 === 100 ? (
+                            <Center>
+                              <ActionIcon
+                                color="teal"
+                                variant="light"
+                                radius="xl"
+                                size="xl"
+                              >
+                                <IconCheck
+                                  style={{ width: rem(22), height: rem(22) }}
+                                />
+                              </ActionIcon>
+                            </Center>
+                          ) : (
+                            `${Number((goal.current / goal.target).toFixed(3)) * 100}%`
+                          )}
+                        </Text>
+                      }
                     />
-                  </Box>
+                  </Grid.Col>
                 ))}
-              </Stack>
+              </Grid>
             </Card>
           </Grid.Col>
         </Grid>

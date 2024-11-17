@@ -7,7 +7,7 @@ import {
   Button,
   Box,
 } from '@mantine/core'
-import { IconShoppingCart, IconCar, IconDots } from '@tabler/icons-react'
+import { IconShoppingCart, IconCar } from '@tabler/icons-react'
 
 interface Budget {
   title: string

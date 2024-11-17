@@ -61,6 +61,7 @@ const TransactionForm = ({ initialValues, onSubmit }: TransactionFormProps) => {
         onChange={(value) => handleChange('date', value?.toISOString())}
         label="Date input"
         placeholder="Date input"
+        mb="sm"
       />
       <Group justify="right" mt="md">
         <Button variant="default" onClick={() => setFormValues(initialValues)}>
