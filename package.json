@@ -20,7 +20,7 @@
     "@mantine/notifications": "^7.14.1",
     "@tabler/icons-react": "^3.22.0",
     "dayjs": "^1.11.13",
-    "nanoid": "^5.0.8",
+    "nanoid": "^5.0.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.3"
