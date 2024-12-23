@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   AppShell,
   Burger,
@@ -25,13 +25,8 @@ import {
   IconMoonStars,
   IconTarget,
 } from '@tabler/icons-react'
-
-// import Dashboard from './components/Dashboard'
-// import Transactions from './components/Transactions'
-// import CategoriesPage from './components/Categories'
-// import BudgetsPage from './components/Budget'
-// import SettingsPage from './components/Settings'
-// import SavingsPage from './components/GoalTracker'
+import { useUser } from './UserContext'
+import { useNavigate } from 'react-router'
 
 const Dashboard = lazy(() => import('./components/Dashboard'))
 const Transactions = lazy(() => import('./components/Transactions'))
@@ -62,11 +57,18 @@ const MainPage = ({ label }: { label: string }) => {
 }
 
 const App = () => {
+  const user = useUser()
+  const navigate = useNavigate()
   const theme = useMantineTheme()
   const [opened, { toggle }] = useDisclosure(false)
   const [activeNav, setActiveNav] = useState('Dashboard')
 
   const { setColorScheme, colorScheme } = useMantineColorScheme()
+
+  useEffect(() => {
+    if (!user?.is_logged_in) navigate('/login')
+    console.log(user)
+  }, [user?.is_logged_in])
 
   const menuItems = [
     {
@@ -121,8 +123,8 @@ const App = () => {
         <Divider />
         <NavLink
           href="#required-for-focus"
-          label={'Navneet Lal Gupta'}
-          description={'navneetlalg@gmail.com'}
+          label={user?.first_name! + ' ' + user?.last_name}
+          description={user?.username}
           leftSection={<IconUserCircle size="2rem" stroke={1.5} />}
           rightSection={<IconChevronRight size="1rem" stroke={1.5} />}
           onClick={() => setActiveNav('Settings')}
